@@ -52,13 +52,13 @@ Token::print(ostream& os) const
  *     **** YOU MUST CODE THIS !!!!!! ****            *
  ******************************************************/
 
-static int **DFA=nullptr;
+static int ** DFA= nullptr;
 
 void Token::get(istream &is)
 {
   // you must write this code !!!!
-  if (DFA==nullptr) {
-    DFA = new int*[COMMA];
+  if (DFA == nullptr) {
+    //DFA = new int*[COMMA];
   }
 
 
@@ -84,8 +84,9 @@ void Token::get(istream &is)
         _value+=ch;
     }
     else {
-      is.ignore(1000, '\n');
+      is.ignore(numeric_limits<streamsize>::max(), '\n');
     }
+
   }
 
   if (is) {
@@ -97,4 +98,5 @@ void Token::get(istream &is)
   }
 
   _type = static_cast<TokenType>(prev);
+  return;
 }
