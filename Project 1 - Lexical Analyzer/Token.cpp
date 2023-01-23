@@ -51,8 +51,50 @@ Token::print(ostream& os) const
  *                                                    *
  *     **** YOU MUST CODE THIS !!!!!! ****            *
  ******************************************************/
+
+static int **DFA=nullptr;
+
 void Token::get(istream &is)
 {
   // you must write this code !!!!
+  if (DFA==nullptr) {
+    DFA = new int*[COMMA];
+  }
 
+
+  _value="";
+  char ch;
+
+  // skipWS()
+  if(!is) 
+    return;
+  
+  
+  int curr=0;
+  int prev=-1;
+
+  while (curr != -1) {
+
+    ch = is.get();
+    if (ch != '#') {
+      prev = curr;
+      curr = DFA[curr][(int)ch];
+
+      if (curr != -1)
+        _value+=ch;
+    }
+    else {
+      is.ignore(1000, '\n');
+    }
+  }
+
+  if (is) {
+    is.putback(ch);
+  }
+
+  if (is.eof()) {
+    prev = 1;
+  }
+
+  _type = static_cast<TokenType>(prev);
 }
