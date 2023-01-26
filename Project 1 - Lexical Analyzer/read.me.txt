@@ -1,0 +1,12 @@
+Name: CJ Hess
+Platform: Windows, Compiled and Tested on Linux
+Compile: Nothing in particular - the makefile gave me some trouble originally, but I fixed that.
+Run: Run using the following ./execName inputFile
+Bugs: None
+Soultion Details: The way I went about solving this issue was to start with the provided code from the in class example.
+I then identified the differences in that Lexical Analyzer and adapted the code to include project specific details.
+I started by building the DFA table (in Excel), which helped me to understand how to code the 2D array DFA.
+Then, I filled the DFA table with proper state transitions.
+Once that was done, I moved on to working with the character getting. This was pretty straightforward but the major roadblocks I ran into were
+1. Accidentally putting back a # (which would cause the program to infinitely hit a comment)
+2. Counting line numbers correctly.
