@@ -15,6 +15,20 @@
 
 using namespace std;
 
+struct node {
+  int startAdr;
+  int endAdr;
+  int refCount;
+  node * next = nullptr;
+};
+
+struct variable {
+  int startAdr;
+  int endAdr;
+  int refCount;
+  int name;
+};
+
 int prog(Token t, ifstream &ifile);
 int slist(Token t, ifstream &ifile);
 int stmt(Token t, ifstream &ifile);
@@ -27,22 +41,14 @@ int numIndents = 0;
 
 
 int prog(Token t, ifstream &ifile) {
-  // declaration prog | compound
-  if (declaration(t, ifile)) {
-    if (prog(nextToken, ifile)) {
-      // declaration prog
-      return SUCCESS;
-    }
-  }
-  else if (compound(t, ifile)) {
-    // compound
+  if (slist(t, ifile)) {
     return SUCCESS;
   }
   return FAIL;
 }
 
 int slist(Token t, ifstream &ifile) {
-  // stmt | stmt SEMICOLON stmlist
+  // stmt SEMICOLON slist | E
   if (stmt(t, ifile)) {
     if (nextToken.type() == SEMICOLON) {
       cout << nextToken.value() << endl;
@@ -51,94 +57,44 @@ int slist(Token t, ifstream &ifile) {
         return SUCCESS;
       }
     }
-    else {
-      return SUCCESS;
-    }
   }
   return FAIL;
 }
 
 int stmt(Token t, ifstream &ifile) {
+  /*
+    ID LPAREN ID RPAREN
+    ID LPRAREN RPAREN
+    ID ASSIGNOP <rhs>
+  */
   if (t.type() == ID) {
-    // ID | ID LPAREN exprlist RPAREN | ID ASSIGNOP expr
-    indent();
     cout << t.value();
     nextToken = t;
     nextToken.get(ifile);
-    if (nextToken.type() == LPAREN || nextToken.type() == ASSIGNOP) {
-      if (nextToken.type() == LPAREN) {
-        // ID LPAREN exprlist RPAREN
+    if (nextToken.type() == LPAREN) {
+      cout << nextToken.value(); 
+      nextToken.get(ifile);
+      if (nextToken.type() == ID) {
         cout << nextToken.value();
         nextToken.get(ifile);
-        if (exprlist(nextToken, ifile)) {
-          if (nextToken.type() == RPAREN) {
-            cout << nextToken.value();
-            nextToken.get(ifile);
-            return SUCCESS;
-          }
-        }
-      }
-      else {
-        // ID ASSIGNOP expr
-        cout << " " << nextToken.value() << " ";
-        nextToken.get(ifile);
-        if (expr(nextToken, ifile)) {
+        if (nextToken.type() == RPAREN) {
+          cout << nextToken.value();
+          nextToken.get(ifile);
           return SUCCESS;
         }
       }
-    }
-    return SUCCESS;
-  }
-  else if (t.type() == IF) {
-    // IF expr THEN compound ELSE compound
-    indent();
-    numIndents++;
-    cout << t.value() << " ";
-    nextToken = t;
-    nextToken.get(ifile);
-    if (expr(nextToken, ifile)) {
-      if (nextToken.type() == THEN) {
-        cout << nextToken.value() << endl;
+      else if (nextToken.type() == RPAREN) {
+        cout << nextToken.value();
         nextToken.get(ifile);
-        if (compound(nextToken, ifile)) {
-          if (nextToken.type() == ELSE) {
-            numIndents--;
-            indent();
-            cout << nextToken.value() << endl;
-            nextToken.get(ifile);
-            if (compound(nextToken, ifile)) {
-              return SUCCESS;
-            }
-          }
-        }
+        return SUCCESS;
       }
     }
-  }
-  else if (t.type() == WHILE) {
-    // WHILE LPAREN expr RPAREN compound
-    indent();
-    numIndents++;
-    cout << t.value() << " ";
-    nextToken = t;
-    nextToken.get(ifile);
-    if (nextToken.type() == LPAREN) {
+    else if (nextToken.type() == ASSIGNOP) {
       cout << nextToken.value();
       nextToken.get(ifile);
-      if (expr(nextToken, ifile)) {
-        if (nextToken.type() == RPAREN) {
-          cout << nextToken.value() << endl;
-          nextToken.get(ifile);
-          if (compound(nextToken, ifile)) {
-            return SUCCESS;
-          }
-        }
+      if (rhs(nextToken, ifile)) {
+        return SUCCESS;
       }
-    }
-  }
-  else {
-    // compound
-    if (compound(t, ifile)) {
-      return SUCCESS;
     }
   }
   return FAIL;
@@ -163,12 +119,16 @@ int rhs(Token t, ifstream &ifile) {
 
     }
     else {
+      nextToken.get(ifile);
       return SUCCESS;
     }
   }
   return FAIL;
 }
 
+/*
+  Looks like we will need structs/classes to implement the freelist and hold on to variables
+*/
 
 int main(int argc, char *argv[])
 {
