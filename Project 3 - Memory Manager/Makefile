@@ -9,11 +9,11 @@ OPTS=$(DBG) $(OPTIM) -Wall -ansi -pedantic
 CC=g++ $(OPTS)  -c
 LNK=g++
 
-OBJS=Token.o main.o
+OBJS= Parser.o Token.o main.o
 GLBL=Makefile Token.hpp
 
-beautifier: $(OBJS)
-	$(LNK) -o beautifier $(OBJS)
+parser: $(OBJS)
+	$(LNK) -o parser $(OBJS)
 
 main.o: main.cpp Token.hpp $(GLBL)
 	$(CC) main.cpp
@@ -21,5 +21,8 @@ main.o: main.cpp Token.hpp $(GLBL)
 Token.o: Token.cpp Token.hpp $(GLBL)
 	$(CC) Token.cpp
 
+Parser.o: Parser.cpp Parser.hpp Token.hpp $(GLBL)
+	$(CC) Parser.cpp
+
 clean:
-	/bin/rm -f *.o beautifier *~
+	/bin/rm -f *.o parser *~
