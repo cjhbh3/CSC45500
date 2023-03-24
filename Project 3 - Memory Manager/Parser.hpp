@@ -3,13 +3,22 @@
 
 #include <fstream>
 #include <iostream>
+#include <vector>
 
 #include "Token.hpp"
+#include "Variable.hpp"
+
+
 
 class Parser {
     private:
         Token nextToken;
         std::ifstream ifile;
+        std::vector<Variable> variables;
+
+        std::string varName;
+        std::string otherVarName;
+        int blockSize;
     public:
         Parser(const char* fileName)
             :nextToken(), ifile() {ifile.open(fileName); nextToken.get(ifile);}
@@ -20,6 +29,8 @@ class Parser {
         bool slist();
         bool stmt();
         bool rhs();
+
+        void dump();
 };
 
 #endif
