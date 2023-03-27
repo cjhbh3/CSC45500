@@ -46,6 +46,10 @@ bool Parser::stmt() {
                     // ID LPAREN ID RPAREN
                     // free(varName)
                     cout << "free()" << endl;
+                    int index = checkVar(varName);
+                    if (index != -1) {
+                        variables.erase(variables.begin() + index);
+                    }
                     consumeToken();
                     return true;
                 }
@@ -96,8 +100,15 @@ bool Parser::rhs() {
                 // varName = alloc(integerAmount)
                 cout << "varName = alloc(int)" << endl;
                 Variable newVar(0, 0 + blockSize, 1, blockSize, varName);
-                variables.push_back(newVar);
-                cout << variables.size() << endl;
+                int index = checkVar(varName);
+                if (index == -1) {
+                    variables.push_back(newVar);
+                    cout << variables.size() << endl;
+                }
+                else {
+                    variables.at(index) = newVar;
+                    cout << variables.size() << endl;
+                }
                 consumeToken();
                 return true;
             }
@@ -107,12 +118,40 @@ bool Parser::rhs() {
     // ID
     // varName = otherVarName
     cout << "varName = otherVarName" << endl;
+    int indexExisting = checkVar(varName);
+    int indexReference = checkVar(otherVarName);
+    if (indexExisting == -1) {
+        variables.at(indexReference).setRefCount(variables.at(indexReference).getRefCount() + 1);
+        Variable newVar(varName, variables.at(indexReference));
+        variables.push_back(newVar);
+    }
+    else {
+        variables.at(indexExisting).reference(variables.at(indexReference));
+    }
+    
     return true;
 }
 
 void Parser::dump() {
+    cout << "Variables: " << endl;
     for (int i = 0; i < variables.size(); i++) {
-        cout << variables.at(i).getVarName() << ":" << variables.at(i).getBlockSize() 
+        cout << variables.at(i).getVarName() << ":" << variables.at(i).getStartAddr() << 
+        "(" <<variables.at(i).getBlockSize() << ")"
         << " [" << variables.at(i).getRefCount() << "]" << endl;
     }
+    cout << endl;
+}
+
+int Parser::checkVar(std::string name) {
+    // Checks if varName is already present in the variables list
+    // Return index if present, -1 if not
+    int index = -1;
+
+    for (int i = 0; i < variables.size(); i++) {
+        if (variables.at(i).getVarName() == name) {
+            index = i;
+        }
+    }
+
+    return index;
 }

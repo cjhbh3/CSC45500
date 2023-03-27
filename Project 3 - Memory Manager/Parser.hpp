@@ -31,6 +31,7 @@ class Parser {
         bool rhs();
 
         void dump();
+        int checkVar(std::string name);
 };
 
 #endif

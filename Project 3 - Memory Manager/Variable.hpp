@@ -16,12 +16,12 @@ class Variable {
         Variable(const int startAdr, const int endAdr, const int refCount, const int size, const std::string varName)
             :startAddr(), endAddr(), blockSize(), referenceCount(), name() {startAddr = startAdr; endAddr = endAdr; blockSize = size; referenceCount = refCount; name = varName;}
 
-        Variable(const Variable &var) {
+        Variable(const std::string varName, const Variable &var) {
             startAddr = var.startAddr;
             endAddr = var.endAddr;
             blockSize = var.blockSize;
             referenceCount = var.referenceCount;
-            name = var.name;
+            name = varName;
         }
 
         void setStartAddr(const int startAdr);
