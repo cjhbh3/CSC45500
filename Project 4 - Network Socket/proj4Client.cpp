@@ -2,6 +2,17 @@
     Name: CJ Hess
     Date: 4/17/2023
     File: proj4Client.cpp
+
+    For access to on campus computer:
+
+      ssh -p 40001 cjh147@luredir.hopto.org
+      User lab account
+
+      Machines in Blythe's office
+        - Alderaan
+        - Bespin
+        - Coruscant
+        - Dagobah
 */
 
 #include <netdb.h>
