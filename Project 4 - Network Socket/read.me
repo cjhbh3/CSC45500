@@ -1,0 +1,16 @@
+Name: CJ Hess
+Platform: Windows, Compiled and Tested on Linux
+Compile: Nothing in particular. Compile the server and client separately.
+Run: 
+    Server should be run with the following: ./server <port> 
+    Client should be run with the following: ./client <serverName> <port>
+    Server should be run first 
+Bugs:
+    Nothing that happens on every run. Sometimes, I did run into a random occurence of a bind() error when running
+    the server (It only happened 3 times while testing). Usually when I restart the shell it would fix the problem.
+Soultion Details:
+    So, I started by using the example code provided on the repo. For the client, I adjusted the do_client function
+    to include another parameter. The way I worked through was by first starting with establishing the ability to 
+    write something from the client to the server, and then having the server write something back to the client.
+    Once I got that working fully, it was as simple as adding logic to compare what string the client inputted and compare
+    it to one of the options. 

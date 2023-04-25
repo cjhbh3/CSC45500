@@ -12,6 +12,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <string>
+#include <cstring>
 
 using namespace std;
 
@@ -19,6 +20,9 @@ struct mywork_struct {
     int with_sock;
     struct sockaddr_in *from_cli;
 };
+
+// Accumulator variable
+int accumulator;
 
 #define USAGE_ERROR 1
 #define SOCK_ERROR 2
@@ -36,6 +40,7 @@ int main(int argc, char *argv[]) {
         return USAGE_ERROR;
     }
 
+    accumulator = 0;
     return do_server(atoi(argv[1]));
 }
 
@@ -75,7 +80,7 @@ int do_server(int portNum) {
       from_len = sizeof(from);
       
       connected_sock = accept(listen_sock, (sockaddr*) &from, &from_len);
-      // do_work(connected_sock, &from); 
+      
       struct mywork_struct *params = new mywork_struct;
       params -> with_sock = connected_sock;
       params -> from_cli = &from;
@@ -84,7 +89,6 @@ int do_server(int portNum) {
     }
 }
 
-//void do_work(int conn_sock, struct sockaddr_in *client_addr)
 void* do_work(void *param) {
   struct mywork_struct *mwsp = (mywork_struct *) param;
   int conn_sock = mwsp -> with_sock;
@@ -92,30 +96,53 @@ void* do_work(void *param) {
 
   // suggested idea: delete now unused structure:
   delete mwsp;
-  
+
+  // Read from Client
+  char bufferRead[81];
+  int charsRead;
+
+  charsRead = read(conn_sock, bufferRead, 80);
+
   string buffer;
 
-  // build the response string to send to the client
-  buffer =  "Your IP address is: ";
-  buffer += inet_ntoa(client_addr->sin_addr);
+  // Read input from client
+  if (charsRead > 0) {
+    // Grab token of input
+    // Used because we use getline to grab the add command specifically
+    char *tok = strtok((char *) bufferRead, " ");
+
+    // get-clear-add, probably should add an else that says command not valid
+    if (strcmp(tok, "get") == 0) {
+      buffer = to_string(accumulator);
+    }
+    else if (strcmp(tok, "clear") == 0) {
+      accumulator = 0;
+    }
+    else if (strcmp(tok, "add") == 0) {
+      tok = strtok(NULL, " ");
+      accumulator += atoi(tok);
+      buffer += to_string(accumulator);
+    }
+    else {
+      buffer = "Command not valid!";
+    }
+  }
+
   buffer += '\n';
+
+  // build the response string to send to the client
 
   char *cbuff = (char *) buffer.c_str(); 
 
   int needed = buffer.length();
 
   // need to put in a loop ...
-  while(needed>0)
-    {
-      int num_written= write(conn_sock, cbuff, needed);
+  while(needed > 0) {
+    int num_written= write(conn_sock, cbuff, needed);
 
-      needed -= num_written;
-      cbuff += num_written;
-    }
-
-  
-  cout << "LOG: processed a connection from "
-       <<  inet_ntoa(client_addr->sin_addr) << endl;
+    needed -= num_written;
+    cbuff += num_written;
+  }
 
   close(conn_sock);  // closed connected socket - we are done with this client!
 
